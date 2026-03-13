@@ -10,7 +10,11 @@ const activityLogSchema = new Schema({
 
     activity:{
         type:String
-    }
+    },
+
+    description:{
+        type:String
+    },
 
 },{timestamps:true})
 
