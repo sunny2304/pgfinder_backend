@@ -19,7 +19,7 @@ const PropertyRoutes = require("./src/routes/PGPropertyRoutes");
 const BookingRoutes = require("./src/routes/BookingRoutes");
 const PaymentRoutes = require("./src/routes/PaymentRoutes");
 const ReviewRoutes = require("./src/routes/ReviewRoutes");
-const MessageRoutes = require("./src/routes/MessageRoutes");
+// const MessageRoutes = require("./src/routes/MessageRoutes");
 const DisputeRoutes = require("./src/routes/DisputeRoutes");
 const ActivityLogRoutes = require("./src/routes/ActivityLogRoutes");
 
@@ -29,7 +29,7 @@ app.use("/api", PropertyRoutes);
 app.use("/api", BookingRoutes);
 app.use("/api", PaymentRoutes);
 app.use("/api", ReviewRoutes);
-app.use("/api", MessageRoutes);
+// app.use("/api", MessageRoutes);
 app.use("/api", DisputeRoutes);
 app.use("/api", ActivityLogRoutes);
 
