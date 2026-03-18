@@ -22,6 +22,7 @@ const ReviewRoutes = require("./src/routes/ReviewRoutes");
 // const MessageRoutes = require("./src/routes/MessageRoutes");
 const DisputeRoutes = require("./src/routes/DisputeRoutes");
 const ActivityLogRoutes = require("./src/routes/ActivityLogRoutes");
+const PropertyImageRoutes = require("./src/routes/PropertyImageRoutes");
 
 // ROUTES USE 
 app.use("/api", UserRoutes);
@@ -30,6 +31,7 @@ app.use("/api", BookingRoutes);
 app.use("/api", PaymentRoutes);
 app.use("/api", ReviewRoutes);
 // app.use("/api", MessageRoutes);
+app.use("/api", PropertyImageRoutes);
 app.use("/api", DisputeRoutes);
 app.use("/api", ActivityLogRoutes);
 
