@@ -1,7 +1,8 @@
 const userSchema = require("../models/UserModel")
 const bcrypt = require("bcrypt")
 const mailSend = require("../utils/MailUtil")
-
+const jwt = require("jsonwebtoken")
+const secret = "secret"
 // REGISTER USER
 const registerUser = async (req, res) => {
 
@@ -69,51 +70,53 @@ const registerUser = async (req, res) => {
 
 // LOGIN USER
 const loginUser = async (req, res) => {
-
     try {
+        const { email, password } = req.body;
 
-        const { email, password } = req.body
-
-        const user = await userSchema.findOne({ email: email })
+        const user = await userSchema.findOne({ email });
 
         if (!user) {
             return res.status(404).json({
                 message: "User not found"
-            })
+            });
         }
 
-        if(user.status !== "active"){
+        if (user.status !== "active") {
             return res.status(403).json({
-                message:"User account is not active"
-            })
+                message: "User account is not active"
+            });
         }
 
-        const passwordmatch = await bcrypt.compare(password, user.password)
+        // ✅ compare password FIRST
+        const isPasswordMatched = await bcrypt.compare(password, user.password);
 
-        if (!passwordmatch) {
+        if (!isPasswordMatched) {
             return res.status(401).json({
-                message: "Invalid password"
-            })
+                message: "Invalid Credentials"
+            });
         }
 
-        const userData = user.toObject()
-        delete userData.password
+        // ✅ generate token AFTER validation
+        const token = jwt.sign(user.toObject(), secret, { expiresIn: "1h" });
 
-        res.status(200).json({
-            message: "Login successful",
-            data: userData
-        })
+        // ✅ remove password before sending
+        const userData = user.toObject();
+        delete userData.password;
+
+        // ✅ send proper response (IMPORTANT)
+        return res.status(200).json({
+            message: "Login Success",
+            data: userData,
+            token: token
+        });
 
     } catch (err) {
-
-        res.status(500).json({
+        return res.status(500).json({
             message: "Login failed",
             error: err
-        })
-
+        });
     }
-
-}
+};
 
 module.exports = {
     registerUser,
