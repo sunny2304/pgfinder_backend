@@ -1,76 +1,20 @@
-const Property = require("../models/PGPropertyModel");
-const User = require("../models/UserModel");
+const PG = require("../models/PGPropertyModel");
+const Review = require("../models/ReviewModel"); // optional if reviews stored separately
 
-// CREATE PROPERTY
-const createProperty = async (req, res) => {
-    try {
-    const newProperty = await Property.create({
-      ...req.body,
-      landlordId: req.params.userId
-    });
-
-    res.status(201).json({
-      message: "Property added successfully",
-      data: newProperty
-    });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error adding property" });
-  }
-};
-
-// GET ALL
-const getAllProperties = async (req, res) => {
+// GET PG BY ID
+const getPGById = async (req, res) => {
   try {
-    const properties = await Property.find().populate("landlordId");
+    const pg = await PG.findById(req.params.id).lean();
+    if (!pg) return res.status(404).json({ message: "PG not found" });
 
-    res.status(200).json({
-      message: "All properties fetched",
-      data: properties
-    });
+    // fetch reviews
+    const reviews = await Review.find({ pgId: pg._id }).lean();
 
+    res.json({ pg, reviews });
   } catch (err) {
-    console.log("ERROR:", err);
-    res.status(500).json({
-      message: "Error fetching properties"
-    });
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
-const getPropertyById = async (req, res) => {
-  try {
-    const property = await Property.findById(req.params.propertyId)
-      .populate("landlordId");
-
-    res.json(property);
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error fetching property" });
-  }
-};
-
-// UPDATE
-const updateProperty = async (req, res) => {
-    const updated = await Property.findByIdAndUpdate(
-        req.params.propertyId,
-        req.body,
-        { new: true }
-    );
-    res.json(updated);
-};
-
-// DELETE
-const deleteProperty = async (req, res) => {
-    await Property.findByIdAndDelete(req.params.propertyId);
-    res.json({ message: "Property deleted" });
-};
-
-module.exports = {
-    createProperty,
-    getAllProperties,
-    getPropertyById,
-    updateProperty,
-    deleteProperty
-};
+module.exports = { getPGById };

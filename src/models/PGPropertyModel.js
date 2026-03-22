@@ -1,52 +1,46 @@
-const mongoose = require("mongoose")
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const pgPropertySchema = new Schema({
 
-    pgName:{
-        type:String,
-        required:true
-    },
+  pgName: {
+    type: String,
+    required: true
+  },
 
-    landlordId:{
-        type:mongoose.Types.ObjectId,
-        ref:"users"
-    },
+  landlordId: {
+    type: mongoose.Types.ObjectId,
+    ref: "users"
+  },
 
-    city:{
-        type:String
-    },
+  city: String,
+  area: String,
+  address: String,
 
-    area:{
-        type:String
-    },
+  rent: Number,
 
-    address:{
-        type:String
-    },
+  roomType: {
+    type: String,
+    enum: ["single", "double", "triple"]
+  },
 
-    rent:{
-        type:Number
-    },
+  gender: {
+    type: String,
+    enum: ["male", "female", "unisex"]
+  },
 
-    roomType:{
-        type:String,
-        enum:["single","double","triple"]
-    },
+  amenities: {
+    type: [String],
+    enum: ["wifi", "ac", "meals", "laundry", "gym", "parking", "security"]
+  },
 
-    amenities:{
-        type:[String]
-    },
+  description: String,
 
-    description:{
-        type:String
-    },
+  available: {
+    type: Boolean,
+    default: true
+  }
 
-    available:{
-        type:Boolean,
-        default:true
-    }
+}, { timestamps: true });
 
-},{timestamps:true})
-
-module.exports = mongoose.model("pg_properties",pgPropertySchema)
+module.exports = mongoose.model("pg_properties", pgPropertySchema);
