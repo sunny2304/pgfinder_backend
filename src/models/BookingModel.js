@@ -1,32 +1,54 @@
-const mongoose = require("mongoose")
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const bookingSchema = new Schema({
-
-    tenantId:{
-        type:mongoose.Types.ObjectId,
-        ref:"users"
+const bookingSchema = new Schema(
+  {
+    // 👤 User reference
+    tenantId: {
+      type: mongoose.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
 
-    pgId:{
-        type:mongoose.Types.ObjectId,
-        ref:"pg_properties"
+    // 🏠 Property reference
+    pgId: {
+      type: mongoose.Types.ObjectId,
+      ref: "pg_properties",
+      required: true,
     },
 
-    checkInDate:{
-        type:Date
+    // 📅 Booking Dates
+    checkInDate: {
+      type: Date,
+      required: true,
     },
 
-    checkOutDate:{
-        type:Date
+    checkOutDate: {
+      type: Date,
+      required: true,
     },
 
-    bookingStatus:{
-        type:String,
-        enum:["pending","confirmed","cancelled"],
-        default:"pending"
-    }
+    // 🛏 Room Type
+    roomType: {
+      type: String,
+      enum: ["single", "double", "triple"],
+      required: true,
+    },
 
-},{timestamps:true})
+    // 👤 Gender Preference (optional)
+    gender: {
+      type: String,
+      enum: ["male", "female", "unisex"],
+    },
 
-module.exports = mongoose.model("bookings",bookingSchema)
+    // 📌 Status
+    bookingStatus: {
+      type: String,
+      enum: ["pending", "confirmed", "cancelled"],
+      default: "pending",
+    },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("bookings", bookingSchema);
