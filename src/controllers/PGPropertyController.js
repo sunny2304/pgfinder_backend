@@ -23,20 +23,32 @@ const createProperty = async (req, res) => {
 // GET ALL
 const getAllProperties = async (req, res) => {
   try {
-    const properties = await Property.find().populate("landlordId");
+    const { location, gender, minPrice, maxPrice, amenities } = req.query;
 
-    res.status(200).json({
-      message: "All properties fetched",
-      data: properties
-    });
+    let filter = {};
 
+    // LOCATION: partial match, case-insensitive
+    if (location) filter.location = { $regex: location.trim(), $options: "i" };
+
+    // GENDER
+    if (gender) filter.gender = gender;
+
+    // PRICE
+    if (minPrice) filter.rent = { ...filter.rent, $gte: Number(minPrice) };
+    if (maxPrice) filter.rent = { ...filter.rent, $lte: Number(maxPrice) };
+
+    // AMENITIES
+    if (amenities) filter.amenities = { $all: amenities.split(",") };
+
+    const properties = await Property.find(filter).populate("landlordId");
+
+    res.status(200).json({ message: "Filtered properties fetched", data: properties });
   } catch (err) {
     console.log("ERROR:", err);
-    res.status(500).json({
-      message: "Error fetching properties"
-    });
+    res.status(500).json({ message: "Error fetching properties" });
   }
 };
+
 
 const getPropertyById = async (req, res) => {
   try {
