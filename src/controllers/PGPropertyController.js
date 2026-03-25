@@ -27,22 +27,41 @@ const getAllProperties = async (req, res) => {
 
     let filter = {};
 
-    // LOCATION: partial match, case-insensitive
-    if (location) filter.location = { $regex: location.trim(), $options: "i" };
+    // ✅ FIXED: use "city" instead of "location"
+    if (location && location.trim() !== "") {
+      filter.city = {
+        $regex: location.trim(),
+        $options: "i", // case-insensitive
+      };
+    }
 
-    // GENDER
-    if (gender) filter.gender = gender;
+    // ✅ GENDER (case-insensitive)
+    if (gender) {
+      filter.gender = { $regex: `^${gender}$`, $options: "i" };
+    }
 
-    // PRICE
-    if (minPrice) filter.rent = { ...filter.rent, $gte: Number(minPrice) };
-    if (maxPrice) filter.rent = { ...filter.rent, $lte: Number(maxPrice) };
+    // ✅ PRICE FILTER
+    if (minPrice || maxPrice) {
+      filter.rent = {};
+      if (minPrice) filter.rent.$gte = Number(minPrice);
+      if (maxPrice) filter.rent.$lte = Number(maxPrice);
+    }
 
-    // AMENITIES
-    if (amenities) filter.amenities = { $all: amenities.split(",") };
+    // ✅ AMENITIES
+    if (amenities) {
+      const amenitiesArray = amenities.split(",").map(a => a.trim());
+      filter.amenities = { $all: amenitiesArray };
+    }
+
+    console.log("FILTER:", filter); // debug
 
     const properties = await Property.find(filter).populate("landlordId");
 
-    res.status(200).json({ message: "Filtered properties fetched", data: properties });
+    res.status(200).json({
+      message: "Filtered properties fetched",
+      data: properties
+    });
+
   } catch (err) {
     console.log("ERROR:", err);
     res.status(500).json({ message: "Error fetching properties" });
