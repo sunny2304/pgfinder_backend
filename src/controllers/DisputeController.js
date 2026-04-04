@@ -32,19 +32,46 @@ const createDispute = async (req, res) => {
 // GET ALL DISPUTES (ADMIN)
 const getAllDisputes = async (req, res) => {
     try {
-        const disputes = await Dispute.find()
-            .populate({
-                path: "bookingId",
-                populate: [
-                    { path: "tenantId", select: "firstName lastName email" },
-                    { path: "pgId", select: "pgName city" }
-                ]
-            })
-            .populate("userId", "firstName lastName email")
-            .sort({ createdAt: -1 });
+        console.log("🔥 Fetching disputes...");
 
-        res.json(disputes);
+        const disputes = await Dispute.find().lean();
+
+        // manually populate safely
+        const Booking = require("../models/BookingModel");
+        const User = require("../models/UserModel");
+        const Property = require("../models/PGPropertyModel");
+
+        const result = [];
+
+        for (let dispute of disputes) {
+            let booking = null;
+            let user = null;
+            let property = null;
+
+            try {
+                booking = await Booking.findById(dispute.bookingId).lean();
+
+                if (booking) {
+                    user = await User.findById(booking.tenantId).lean();
+                    property = await Property.findById(booking.pgId).lean();
+                }
+
+            } catch (err) {
+                console.log("⚠️ Broken reference skipped:", err.message);
+            }
+
+            result.push({
+                ...dispute,
+                booking,
+                tenant: user,
+                property
+            });
+        }
+
+        res.json(result);
+
     } catch (err) {
+        console.error("❌ FINAL ERROR:", err);
         res.status(500).json({ error: err.message });
     }
 };

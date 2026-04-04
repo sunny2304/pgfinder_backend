@@ -11,6 +11,6 @@ const {
 router.post("/upload", upload.single("image"), createPropertyImage);
 
 // Route to get all images for a property
-router.get("/:pgId", getPropertyImages);
+router.get("/propertyimage/:pgId", getPropertyImages);
 
 module.exports = router;
