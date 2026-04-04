@@ -36,8 +36,6 @@ const getAllDisputes = async (req, res) => {
 
         const disputes = await Dispute.find().lean();
 
-        // manually populate safely
-        const Booking = require("../models/BookingModel");
         const User = require("../models/UserModel");
         const Property = require("../models/PGPropertyModel");
 
@@ -45,25 +43,53 @@ const getAllDisputes = async (req, res) => {
 
         for (let dispute of disputes) {
             let booking = null;
-            let user = null;
+            let raisedBy = null;   // the user/landlord who submitted the dispute
+            let tenant = null;     // the tenant on the booking
+            let landlord = null;   // the landlord who owns the property
             let property = null;
 
             try {
+                // Fetch the booking
                 booking = await Booking.findById(dispute.bookingId).lean();
 
                 if (booking) {
-                    user = await User.findById(booking.tenantId).lean();
-                    property = await Property.findById(booking.pgId).lean();
+                    // Tenant on the booking
+                    tenant = await User.findById(booking.tenantId).select("firstName lastName email role").lean();
+
+                    // Property + landlord
+                    property = await Property.findById(booking.pgId).select("pgName city area landlordId").lean();
+
+                    if (property?.landlordId) {
+                        landlord = await User.findById(property.landlordId).select("firstName lastName email role").lean();
+                    }
                 }
+
+                // Who actually raised this dispute (could be tenant OR landlord)
+                raisedBy = await User.findById(dispute.userId).select("firstName lastName email role").lean();
 
             } catch (err) {
                 console.log("⚠️ Broken reference skipped:", err.message);
             }
 
+            // Determine the "raised against" party:
+            // If raisedBy is the tenant → dispute is against the landlord
+            // If raisedBy is the landlord → dispute is against the tenant
+            let raisedAgainst = null;
+            if (raisedBy && tenant && landlord) {
+                raisedAgainst = raisedBy._id?.toString() === tenant._id?.toString() ? landlord : tenant;
+            } else if (raisedBy && tenant && !landlord) {
+                raisedAgainst = tenant._id?.toString() === raisedBy._id?.toString() ? null : tenant;
+            } else if (raisedBy && landlord && !tenant) {
+                raisedAgainst = landlord._id?.toString() === raisedBy._id?.toString() ? null : landlord;
+            }
+
             result.push({
                 ...dispute,
                 booking,
-                tenant: user,
+                raisedBy,       // who submitted the dispute
+                raisedAgainst,  // the other party
+                tenant,
+                landlord,
                 property
             });
         }
