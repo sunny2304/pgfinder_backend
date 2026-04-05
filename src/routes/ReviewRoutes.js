@@ -8,10 +8,16 @@ router.post(
     ReviewController.addReview
 );
 
-// Get reviews of property
+// Get reviews of a property
 router.get(
     "/properties/:propertyId/reviews",
     ReviewController.getPropertyReviews
+);
+
+// Get all reviews for a landlord's properties
+router.get(
+    "/landlord/:landlordId/reviews",
+    ReviewController.getLandlordReviews
 );
 
 module.exports = router;
