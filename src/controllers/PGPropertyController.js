@@ -23,7 +23,7 @@ const createProperty = async (req, res) => {
 // GET ALL
 const getAllProperties = async (req, res) => {
   try {
-    const { location, gender, minPrice, maxPrice, amenities } = req.query;
+    const { location, gender, minPrice, maxPrice, amenities, roomType } = req.query;
 
     let filter = {};
 
@@ -51,6 +51,11 @@ const getAllProperties = async (req, res) => {
     if (amenities) {
       const amenitiesArray = amenities.split(",").map(a => a.trim());
       filter.amenities = { $all: amenitiesArray };
+    }
+
+    // ✅ ROOM TYPE
+    if (req.query.roomType) {
+      filter.roomType = { $regex: `^${req.query.roomType}$`, $options: "i" };
     }
 
     console.log("FILTER:", filter); // debug
