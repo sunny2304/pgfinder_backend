@@ -18,31 +18,77 @@ const registerUser = async (req, res) => {
     });
 
     await mailSend(
-      user.email,
-      "Welcome to PG Finder 🎉",
-      `
-      <div style="font-family:Arial, sans-serif; background:#f5f7fb; padding:30px;">
-        <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
-          <div style="background:#2563eb; color:white; padding:20px; text-align:center;">
-            <h1 style="margin:0;">PG Finder</h1>
-            <p style="margin:5px 0 0;">Find Your Perfect Stay</p>
-          </div>
-          <div style="padding:30px; text-align:center;">
-            <h2>Welcome, ${user.firstName} 👋</h2>
-            <p style="color:#555;">Your account has been created successfully. Start exploring PGs now.</p>
-            <a href="http://localhost:5173"
-               style="display:inline-block; margin-top:20px; padding:12px 20px;
-               background:#2563eb; color:white; text-decoration:none; border-radius:6px;">
-               Explore Now
-            </a>
-          </div>
-          <div style="background:#f1f5f9; padding:15px; text-align:center; font-size:13px; color:#777;">
-            © 2026 PG Finder
-          </div>
+  user.email,
+  "Welcome to PG Finder 🎉",
+  `
+  <div style="font-family: 'Segoe UI', Arial, sans-serif; background:#f5f2ed; padding:30px;">
+    
+    <div style="max-width:620px; margin:auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 40px rgba(26,39,68,0.08);">
+      
+      <!-- HEADER -->
+      <div style="background:#1a2744; padding:28px; text-align:center;">
+        <h1 style="margin:0; color:white; font-size:26px; letter-spacing:1px;">
+          PG<span style="color:#7dd3c8;">Finder</span>
+        </h1>
+        <p style="margin-top:6px; color:#cbd5e1; font-size:13px;">
+          Find Your Perfect Stay
+        </p>
+      </div>
+
+      <!-- HERO TEXT -->
+      <div style="padding:32px 28px; text-align:center;">
+        <h2 style="color:#1a2744; margin-bottom:10px;">
+          Welcome, ${user.firstName} 👋
+        </h2>
+        <p style="color:#6b7280; font-size:14px; line-height:1.6;">
+          Your account has been successfully created.  
+          You're now ready to explore thousands of verified PG stays across India.
+        </p>
+
+        <!-- CTA BUTTON -->
+        <a href="http://localhost:5173"
+           style="display:inline-block; margin-top:22px; padding:12px 26px;
+           background:#1a2744; color:white; text-decoration:none;
+           border-radius:10px; font-weight:600; font-size:14px;">
+           🔍 Explore PGs
+        </a>
+      </div>
+
+      <!-- FEATURES -->
+      <div style="padding:0 28px 28px;">
+        <div style="background:#f9f7f3; border-radius:12px; padding:20px; text-align:left;">
+          
+          <h3 style="margin-top:0; color:#1a2744; font-size:16px;">
+            Why PGFinder?
+          </h3>
+
+          <ul style="padding-left:18px; color:#6b7280; font-size:14px; line-height:1.8;">
+            <li>✔ Verified listings only</li>
+            <li>✔ Smart filters (location, budget, amenities)</li>
+            <li>✔ Secure online booking</li>
+            <li>✔ Direct chat with landlords</li>
+          </ul>
         </div>
       </div>
-      `
-    );
+
+      <!-- TRUST SECTION -->
+      <div style="text-align:center; padding:10px 28px 28px;">
+        <p style="font-size:13px; color:#9ca3af;">
+          Trusted by students & professionals across multiple cities 🇮🇳
+        </p>
+      </div>
+
+      <!-- FOOTER -->
+      <div style="background:#f1ede7; padding:18px; text-align:center;">
+        <p style="margin:0; font-size:12px; color:#9ca3af;">
+          © 2026 PG Finder • Made with ❤️ for better living
+        </p>
+      </div>
+
+    </div>
+  </div>
+  `
+);
 
     res.status(201).json({ message: "User registered", data: user });
   } catch (err) {
