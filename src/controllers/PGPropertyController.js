@@ -1,6 +1,12 @@
 const Property = require("../models/PGPropertyModel");
 const User = require("../models/UserModel");
 
+// Capitalizes first letter of each word, lowercases the rest
+const toTitleCase = (str) => {
+  if (!str || typeof str !== "string") return str;
+  return str.trim().replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+};
+
 // CREATE PROPERTY
 const createProperty = async (req, res) => {
   try {
@@ -30,6 +36,10 @@ const createProperty = async (req, res) => {
       const newProperty = await Property.create({
         ...rest,
         landlordId: req.params.userId,
+        pgName: toTitleCase(rest.pgName),
+        city: toTitleCase(rest.city),
+        area: toTitleCase(rest.area),
+        address: toTitleCase(rest.address),
         roomCategories: normalizedCategories,
         rent: derivedRent,
         roomType: derivedRoomType,
@@ -45,6 +55,10 @@ const createProperty = async (req, res) => {
     const newProperty = await Property.create({
       ...rest,
       landlordId: req.params.userId,
+      pgName: toTitleCase(rest.pgName),
+      city: toTitleCase(rest.city),
+      area: toTitleCase(rest.area),
+      address: toTitleCase(rest.address),
     });
 
     res.status(201).json({
@@ -118,7 +132,13 @@ const updateProperty = async (req, res) => {
   try {
     const { roomCategories, ...rest } = req.body;
 
-    let updateData = { ...rest };
+    let updateData = {
+      ...rest,
+      pgName: toTitleCase(rest.pgName),
+      city: toTitleCase(rest.city),
+      area: toTitleCase(rest.area),
+      address: toTitleCase(rest.address),
+    };
 
     if (Array.isArray(roomCategories) && roomCategories.length > 0) {
       updateData.roomCategories = roomCategories.map((rc) => ({

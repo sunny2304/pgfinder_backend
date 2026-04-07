@@ -4,6 +4,12 @@ const jwt = require("jsonwebtoken");
 const mailSend = require("../utils/MailUtil");
 const secret = "secret";
 
+// Capitalizes first letter of each word, lowercases the rest
+const toTitleCase = (str) => {
+  if (!str || typeof str !== "string") return str;
+  return str.trim().replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+};
+
 
 // ==========================
 // REGISTER USER
@@ -14,6 +20,8 @@ const registerUser = async (req, res) => {
 
     const user = await userSchema.create({
       ...req.body,
+      firstName: toTitleCase(req.body.firstName),
+      lastName: toTitleCase(req.body.lastName),
       password: hashedPassword
     });
 
@@ -145,8 +153,8 @@ const updateProfileAdvanced = async (req, res) => {
     const decoded = jwt.verify(token, secret);
 
     const updateData = {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName
+      firstName: toTitleCase(req.body.firstName),
+      lastName: toTitleCase(req.body.lastName)
     };
 
     if (req.body.requestStatus) {
