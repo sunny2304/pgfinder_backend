@@ -146,16 +146,31 @@ const getProfile = async (req, res) => {
 
 // ==========================
 // UPDATE PROFILE ADVANCED
+// Handles: name update OR password change
 // ==========================
 const updateProfileAdvanced = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(token, secret);
 
-    const updateData = {
-      firstName: toTitleCase(req.body.firstName),
-      lastName: toTitleCase(req.body.lastName)
-    };
+    // --- Password change flow ---
+    if (req.body.currentPassword && req.body.newPassword) {
+      const user = await userSchema.findById(decoded._id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const match = await bcrypt.compare(req.body.currentPassword, user.password);
+      if (!match) return res.status(401).json({ message: "Current password is incorrect" });
+
+      const hashedNew = await bcrypt.hash(req.body.newPassword, 10);
+      await userSchema.findByIdAndUpdate(decoded._id, { password: hashedNew });
+      return res.json({ message: "Password changed successfully" });
+    }
+
+    // --- Name update flow ---
+    const updateData = {};
+
+    if (req.body.firstName) updateData.firstName = toTitleCase(req.body.firstName);
+    if (req.body.lastName) updateData.lastName = toTitleCase(req.body.lastName);
 
     if (req.body.requestStatus) {
       updateData.status = "pending";
@@ -177,11 +192,10 @@ const updateProfileAdvanced = async (req, res) => {
 // ==========================
 const getAllUsers = async (req, res) => {
   try {
-    // Fetch every user from the database, exclude password field
     const users = await userSchema
       .find({})
       .select("-password")
-      .sort({ createdAt: -1 }); // newest first
+      .sort({ createdAt: -1 });
 
     res.json({ data: users });
   } catch (err) {
