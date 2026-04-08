@@ -22,6 +22,7 @@ const registerUser = async (req, res) => {
       ...req.body,
       firstName: toTitleCase(req.body.firstName),
       lastName: toTitleCase(req.body.lastName),
+      phone: req.body.phone || "",
       password: hashedPassword
     });
 
@@ -146,7 +147,6 @@ const getProfile = async (req, res) => {
 
 // ==========================
 // UPDATE PROFILE ADVANCED
-// Handles: name update OR password change
 // ==========================
 const updateProfileAdvanced = async (req, res) => {
   try {
@@ -156,21 +156,23 @@ const updateProfileAdvanced = async (req, res) => {
     // --- Password change flow ---
     if (req.body.currentPassword && req.body.newPassword) {
       const user = await userSchema.findById(decoded._id);
-      if (!user) return res.status(404).json({ message: "User not found" });
 
       const match = await bcrypt.compare(req.body.currentPassword, user.password);
-      if (!match) return res.status(401).json({ message: "Current password is incorrect" });
+      if (!match) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
 
       const hashedNew = await bcrypt.hash(req.body.newPassword, 10);
       await userSchema.findByIdAndUpdate(decoded._id, { password: hashedNew });
+
       return res.json({ message: "Password changed successfully" });
     }
 
-    // --- Name update flow ---
-    const updateData = {};
-
-    if (req.body.firstName) updateData.firstName = toTitleCase(req.body.firstName);
-    if (req.body.lastName) updateData.lastName = toTitleCase(req.body.lastName);
+    // --- Profile info update flow ---
+    const updateData = {
+      firstName: toTitleCase(req.body.firstName),
+      lastName: toTitleCase(req.body.lastName)
+    };
 
     if (req.body.requestStatus) {
       updateData.status = "pending";
