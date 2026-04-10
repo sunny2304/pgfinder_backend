@@ -26,7 +26,7 @@ const registerUser = async (req, res) => {
       password: hashedPassword
     });
 
-    await mailSend(
+    try { await mailSend(
   user.email,
   "Welcome to PG Finder 🎉",
   `
@@ -97,7 +97,7 @@ const registerUser = async (req, res) => {
     </div>
   </div>
   `
-);
+); } catch (mailErr) { console.log("Mail error (non-fatal):", mailErr.message); }
 
     res.status(201).json({ message: "User registered", data: user });
   } catch (err) {
@@ -212,4 +212,4 @@ module.exports = {
   getProfile,
   updateProfileAdvanced,
   getAllUsers,
-}; 
+};
