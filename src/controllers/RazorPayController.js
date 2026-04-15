@@ -62,18 +62,19 @@ const verifyPayment = async (req, res) => {
       booking: bookingId,
       userId,
       amount,
-      paymentMethod: "upi", // Razorpay supports UPI/card/netbanking — we log as upi
+      paymentMethod: "upi",
       paymentStatus: isValid ? "success" : "failed",
       platformFee,
       landlordAmount,
     });
 
     if (isValid) {
-      // 3. Confirm the booking
+      // 3a. Payment success — confirm the booking
       await Booking.findByIdAndUpdate(bookingId, { bookingStatus: "confirmed" });
-
       return res.status(200).json({ success: true, message: "Payment verified" });
     } else {
+      // 3b. Payment failed — cancel the booking so it doesn't show as pending
+      await Booking.findByIdAndUpdate(bookingId, { bookingStatus: "cancelled" });
       return res.status(400).json({ success: false, message: "Payment verification failed" });
     }
   } catch (err) {
